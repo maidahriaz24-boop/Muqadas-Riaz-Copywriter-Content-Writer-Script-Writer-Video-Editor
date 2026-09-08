@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://muqadas-riaz-copywriter-content-writer-script-writer-2p2111dd6.vercel.app/sitemap.xml
