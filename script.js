@@ -4,29 +4,50 @@
 
 
 /* =====================================================
-   1. MOBILE NAVIGATION TOGGLE
+   1. MOBILE NAVIGATION
 ===================================================== */
 
 const menuToggle = document.getElementById("menuToggle");
 const navMenu = document.querySelector(".nav-menu");
 
+function closeMobileMenu() {
+    if (!navMenu) return;
+
+    navMenu.classList.remove("active");
+
+    if (menuToggle) {
+        const icon = menuToggle.querySelector("i");
+
+        if (icon) {
+            icon.classList.remove("fa-xmark");
+            icon.classList.add("fa-bars");
+        }
+    }
+}
+
+
 if (menuToggle && navMenu) {
 
-    menuToggle.addEventListener("click", function () {
+    menuToggle.addEventListener("click", function (e) {
+
+        e.stopPropagation();
 
         navMenu.classList.toggle("active");
 
-        // Icon change: bars <-> X
         const icon = menuToggle.querySelector("i");
 
         if (icon) {
 
             if (navMenu.classList.contains("active")) {
+
                 icon.classList.remove("fa-bars");
                 icon.classList.add("fa-xmark");
+
             } else {
+
                 icon.classList.remove("fa-xmark");
                 icon.classList.add("fa-bars");
+
             }
 
         }
@@ -37,7 +58,7 @@ if (menuToggle && navMenu) {
 
 
 /* =====================================================
-   2. CLOSE MOBILE MENU WHEN NAV LINK IS CLICKED
+   2. MOBILE NAV LINKS
 ===================================================== */
 
 const navLinks = document.querySelectorAll(".nav-menu a");
@@ -45,22 +66,7 @@ const navLinks = document.querySelectorAll(".nav-menu a");
 navLinks.forEach(function (link) {
 
     link.addEventListener("click", function () {
-
-        if (navMenu) {
-            navMenu.classList.remove("active");
-        }
-
-        if (menuToggle) {
-
-            const icon = menuToggle.querySelector("i");
-
-            if (icon) {
-                icon.classList.remove("fa-xmark");
-                icon.classList.add("fa-bars");
-            }
-
-        }
-
+        closeMobileMenu();
     });
 
 });
@@ -91,6 +97,7 @@ document.querySelectorAll('a[href^="#"]').forEach(function (link) {
                 block: "start"
             });
 
+            closeMobileMenu();
         }
 
     });
@@ -102,8 +109,14 @@ document.querySelectorAll('a[href^="#"]').forEach(function (link) {
    4. HERO BUTTONS
 ===================================================== */
 
-// Let's Work Together button
-const heroButtons = document.querySelectorAll(".left-container > div:nth-of-type(1) button");
+const heroButtons = document.querySelectorAll(
+    ".left-container > div:nth-of-type(1) button"
+);
+
+
+/* -----------------------------------------------------
+   Let's Work Together
+----------------------------------------------------- */
 
 if (heroButtons.length >= 1) {
 
@@ -125,7 +138,10 @@ if (heroButtons.length >= 1) {
 }
 
 
-// View My Works button
+/* -----------------------------------------------------
+   View My Works
+----------------------------------------------------- */
+
 if (heroButtons.length >= 2) {
 
     heroButtons[1].addEventListener("click", function () {
@@ -150,7 +166,9 @@ if (heroButtons.length >= 2) {
    5. HIRE ME BUTTON
 ===================================================== */
 
-const hireMeButton = document.querySelector(".header nav > a:last-of-type");
+const hireMeButton = document.querySelector(
+    ".header nav > a:last-of-type"
+);
 
 if (hireMeButton) {
 
@@ -169,6 +187,8 @@ if (hireMeButton) {
 
         }
 
+        closeMobileMenu();
+
     });
 
 }
@@ -179,14 +199,16 @@ if (hireMeButton) {
 ===================================================== */
 
 /*
-   IMPORTANT:
-
-   Yahan apni EmailJS Public Key lagani hai.
+   EmailJS Public Key
 */
 
-emailjs.init({
-    publicKey: "YOUR_PUBLIC_KEY"
-});
+if (typeof emailjs !== "undefined") {
+
+    emailjs.init({
+        publicKey: "7tS7I9CfUNgXXyp-J"
+    });
+
+}
 
 
 /* =====================================================
@@ -206,7 +228,7 @@ if (contactForm) {
 
 
         /* ---------------------------------------------
-           Check required fields
+           Get Form Fields
         --------------------------------------------- */
 
         const name = document.getElementById("name");
@@ -214,6 +236,32 @@ if (contactForm) {
         const service = document.getElementById("service");
         const message = document.getElementById("message");
 
+
+        /* ---------------------------------------------
+           Check Elements
+        --------------------------------------------- */
+
+        if (
+            !name ||
+            !email ||
+            !service ||
+            !message ||
+            !submitBtn ||
+            !formMessage
+        ) {
+
+            console.error(
+                "Contact form elements are missing."
+            );
+
+            return;
+
+        }
+
+
+        /* ---------------------------------------------
+           Validate Form
+        --------------------------------------------- */
 
         if (
             !name.value.trim() ||
@@ -233,7 +281,26 @@ if (contactForm) {
 
 
         /* ---------------------------------------------
-           Button Loading State
+           Basic Email Validation
+        --------------------------------------------- */
+
+        const emailPattern =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(email.value.trim())) {
+
+            formMessage.textContent =
+                "Please enter a valid email address.";
+
+            formMessage.style.color = "#b42318";
+
+            return;
+
+        }
+
+
+        /* ---------------------------------------------
+           Loading State
         --------------------------------------------- */
 
         submitBtn.disabled = true;
@@ -242,21 +309,33 @@ if (contactForm) {
         formMessage.textContent = "";
 
 
-        /* ---------------------------------------------
-           SEND EMAIL USING EMAILJS
-        --------------------------------------------- */
+        /* =================================================
+           EMAILJS SEND
+           
+           REPLACE THESE TWO VALUES:
+           
+           YOUR_SERVICE_ID
+           YOUR_TEMPLATE_ID
+        ================================================= */
 
         emailjs.sendForm(
-            "YOUR_SERVICE_ID",
-            "YOUR_TEMPLATE_ID",
+            "service_mbb33oj",
+            "template_4q40zfg",
             contactForm
         )
 
-        .then(function () {
+        .then(function (response) {
 
-            /* -----------------------------------------
-               SUCCESS
-            ----------------------------------------- */
+            console.log(
+                "EmailJS Success:",
+                response.status,
+                response.text
+            );
+
+
+            /* ---------------------------------------------
+               Success Message
+            --------------------------------------------- */
 
             formMessage.textContent =
                 "Message sent successfully! I'll get back to you soon.";
@@ -264,30 +343,33 @@ if (contactForm) {
             formMessage.style.color = "#2e7d32";
 
 
-            /* -----------------------------------------
-               RESET FORM
-            ----------------------------------------- */
+            /* ---------------------------------------------
+               Reset Form
+            --------------------------------------------- */
 
             contactForm.reset();
 
 
-            /* -----------------------------------------
-               RESET BUTTON
-            ----------------------------------------- */
+            /* ---------------------------------------------
+               Reset Button
+            --------------------------------------------- */
 
             submitBtn.disabled = false;
             submitBtn.textContent = "Send Message";
-
 
         })
 
         .catch(function (error) {
 
-            /* -----------------------------------------
-               ERROR
-            ----------------------------------------- */
+            console.error(
+                "EmailJS Error:",
+                error
+            );
 
-            console.error("EmailJS Error:", error);
+
+            /* ---------------------------------------------
+               Error Message
+            --------------------------------------------- */
 
             formMessage.textContent =
                 "Something went wrong. Please try again.";
@@ -295,9 +377,9 @@ if (contactForm) {
             formMessage.style.color = "#b42318";
 
 
-            /* -----------------------------------------
-               RESET BUTTON
-            ----------------------------------------- */
+            /* ---------------------------------------------
+               Reset Button
+            --------------------------------------------- */
 
             submitBtn.disabled = false;
             submitBtn.textContent = "Send Message";
@@ -319,8 +401,12 @@ document.addEventListener("click", function (e) {
         return;
     }
 
-    const clickedInsideMenu = navMenu.contains(e.target);
-    const clickedToggle = menuToggle.contains(e.target);
+    const clickedInsideMenu =
+        navMenu.contains(e.target);
+
+    const clickedToggle =
+        menuToggle.contains(e.target);
+
 
     if (
         navMenu.classList.contains("active") &&
@@ -328,40 +414,28 @@ document.addEventListener("click", function (e) {
         !clickedToggle
     ) {
 
-        navMenu.classList.remove("active");
-
-        const icon = menuToggle.querySelector("i");
-
-        if (icon) {
-            icon.classList.remove("fa-xmark");
-            icon.classList.add("fa-bars");
-        }
+        closeMobileMenu();
 
     }
 
 });
 
 
+/* =====================================================
+   9. CLOSE MOBILE MENU WITH ESCAPE
+===================================================== */
 
 document.addEventListener("keydown", function (e) {
 
     if (e.key === "Escape") {
 
-        if (navMenu) {
-            navMenu.classList.remove("active");
-        }
-
-        if (menuToggle) {
-
-            const icon = menuToggle.querySelector("i");
-
-            if (icon) {
-                icon.classList.remove("fa-xmark");
-                icon.classList.add("fa-bars");
-            }
-
-        }
+        closeMobileMenu();
 
     }
 
 });
+
+
+/* =====================================================
+   END OF JAVASCRIPT
+===================================================== */
